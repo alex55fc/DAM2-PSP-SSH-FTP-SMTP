@@ -1,0 +1,43 @@
+version: "2.1"
+services:
+  openssh-server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: openssh-server
+    hostname: openssh-server #optional
+    environment:
+      - PUID=1000 
+      - PGID=1000
+      - SUDO_ACCESS=true #optional
+      - PASSWORD_ACCESS=true #optional
+      - USER_NAME=linuxserver #optional
+      - USER_PASSWORD=password #optional
+    ports:
+      - 2222:2222
+    volumes:
+      - /home/${USER}/ssh:/home
+    restart: unless-stopped
+    
+  ftp-server:
+    image: fauria/vsftpd:latest
+    container_name: vsftpd
+    environment:
+      - FTP_USER=admin
+      - FTP_PASS=preguntaraalberto
+      - PASV_ADDRESS=127.0.0.1 
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
+    ports:
+      - 20:20
+      - 21:21
+      - 21100-21110:21100-21110
+    volumes:
+      - /home/${USER}/ftp:/home/vsftpd
+    restart: unless-stopped
+
+  fake-smtp-server:
+    image: haravich/fake-smtp-server:latest
+    container_name: fake-smtp-server
+    ports:
+      - 1025:1025 #puerto smtp
+      - 1080:1080 #puerto web, para ver los correos
+    restart: unless-stopped
